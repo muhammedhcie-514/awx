@@ -1,0 +1,150 @@
+7.3.1 AWX Initial Experience
+Example: Create a test file in the /tmp directory on the two controlled hosts (172.16.0.12
+and 172.16.0.13) as user test.
+Step 1 Create user test on the two controlled hosts.
+useradd test
+passwd test
+echo "test ALL=(ALL) ALL" > /etc/sudoers.d/test
+
+Step 2 Create an inventory in AWX.
+On the menu bar on the right of the AWX, click Resources, and then click Inventories to
+go to the corresponding page. On the new page, click Add.
+
+In the displayed dialog box, click Add inventory and set parameters as required, as
+shown in the following figure.
+
+After the configuration is complete, click Save. Click Inventories again to return to the
+corresponding page. You can view the created inventory, as shown in the following
+figure.
+
+
+Step 3 Add hosts.
+Choose Resources > Hosts, and click Add.
+
+
+On the displayed page, enter information as prompted. Set Name to the IP address of
+the host and Inventory to test created in the previous step, as shown in the following
+figure.
+
+
+Use the same method to add another controlled host. After the configuration is
+complete, return to the Hosts page to view the added hosts, as shown in the following
+figure.
+
+
+Step 4 Create a credential.
+Choose Resources > Credentials, and click Add.
+
+
+Enter the corresponding configuration as prompted. Set Name to Custom, Organization
+to Default, and Credential Type to Machine, as shown in the following figure.
+
+After you select Machine, the corresponding options are displayed in the lower part.
+Enter the user name and password in the corresponding dialog box based on the
+configuration in Step 1.
+
+
+After the configuration is complete, click Save.
+Step 5 Create a file.
+On the Inventories page, click test created in Step 2. On the displayed page, click Hosts,
+as shown in the following figure.
+
+Select two hosts and click Run Command, as shown in the following figure.
+
+
+On the displayed page, set Module, Parameter, and Verbosity as prompted, and select
+Enable Previlege Escalation
+
+Click Next twice to go to the Credentials page, select the credential created in Step 4
+and click Next.
+
+
+After the configuration is complete, click Next. On the displayed page, click Start. The
+Jobs page is displayed. You can click Details to view the job status. On the Output page,
+wait until the task is complete. Details page:
+⚫ Note: In the preceding figure, one host runs properly, and the other fails. If both of
+them run properly, the following information is displayed:
+
+7.3.2 Interconnecting with GitLab and Performing Operations
+Exercise requirements: Connect the previously installed and deployed GitLab to AWX to
+prepare for CI/CD.
+Step 1 Create a credential.
+Go to the page for creating a credential by referring to Step 4 in section 7.3, input a
+name, set Organization to Default, and set Credential Type to Source Control, as
+shown in the following figure.
+
+On the displayed page, enter the user name hcie and password Huawei@123 created in
+Step 3 in section 2.3, as shown in the following figure.
+
+
+After the creation is complete, click Save.
+Step 2 Create a project.
+Choose Resources > Projects, and click Add.
+
+
+Enter the following information as prompted:
+
+After the configuration is complete, click Save. The system automatically passes the code
+and displays the synchronization result.
+
+Step 3 Create a template.
+Choose Resources > Templates, click Add, and select Add job template, as shown in the
+following figure.
+
+
+On the displayed page, enter the configuration as prompted. Select GitLab1 created in
+the previous step. The playbook is automatically populated to nginx.yml of the project,
+as shown in the following figure.
+
+
+After the template is created, click Save to return to the Templates page. Click Launch
+Template next to GitLab1 to execute the template, as shown in the following figure.
+
+After the template is started, you can view the result on the Jobs page under Views, as
+shown in the following figure.
+
+Click the job name to go to the details page and view the task details and output.
+
+
+7.3.3 Creating a Workflow Template
+Exercise requirements: With the project and template created in section 7.3.2, pull the
+latest project code each time a task in the template is executed to ensure that the task to
+be executed is the latest.
+
+Step 1 Create a workflow template.
+Choose Resources > Templates, click Add, and select Add workflow template, as
+shown in the following figure.
+
+Type information as prompted on the displayed page. Set Name to User-defined,
+Organization to Default, and Inventory to test, as shown in the following figure. 
+
+
+Step 2 Modify a workflow.
+After the workflow template is created, the workflow editing page is displayed. Click
+Start, as shown in the following figure.
+
+Pull the latest code as required before the template task is executed. Therefore, set Node
+Type to Project Sync and select the corresponding project, as shown in the following
+figure.
+
+Select the first task of the workflow and click the plus sign (+) to set the next task, as
+shown in the following figure.
+
+
+There are three execution conditions for the next task: On Success (used in this exercise),
+On Failure, and Always.
+
+Set the new task to Job Template and select the corresponding task, as shown in the
+following figure.
+
+Click Save in the upper right corner of the editing page to return to the Templates page.
+Click the start button next to the newly created workflow, as shown in the following
+figure.
+
+
+The system automatically switches to the corresponding Output page. On this page, you
+can view the detailed execution result.
+
+
+
+
