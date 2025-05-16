@@ -1,0 +1,128 @@
+Example: Assume that project team A is developing an application in agile development
+mode. The development Dept. is responsible for application development, while the
+operations Dept. is responsible for application deployment and maintenance. To perform
+tests , the development Dept. needs to manually deploy the application operating
+environment before each application test, which is laborious. Therefore, the operations
+Dept. compiles a playbook to automatically deploy the operating environment and
+authorizes the playbook to the development Dept. through AWX. Then, the development
+Dept. only needs to run the script on AWX to perform tests, which greatly improves the
+working efficiency. In addition, the development Dept. can synchronize the modification
+to the operating environment during tests to the operations Dept., which updates the
+playbook accordingly.
+Step 1 Prepare resources.
+Create the repository applicationA on GitHub and initialize it.
+
+Set the hcie user to Maintainer of the repository.
+
+
+Pull a project on the client.
+
+Use Nginx to simulate dependencies required by the application and enable port 81 on
+the firewall. The YAML file is as follows:
+
+---
+- hosts: all
+ tasks:
+ - name: install nginx
+ yum:
+ name: nginx
+ state: present
+ - name: enable nginx&firewalld
+ service:
+ name: "{{ item }}"
+ state: started
+ enabled: yes
+ loop:
+ - nginx
+ - firewalld
+ - name: config firewalld
+ firewalld:
+ port: 81/tcp
+ permanent: yes
+ immediate: yes
+ state: enabled
+
+After the editing is complete, push the code to the corresponding repository.
+[root@gitlab applicationa]# git add .
+[root@gitlab applicationa]# git commit -m "1.0"
+[root@gitlab applicationa]# git push
+
+
+Step 2 Create an organization and group and assign permissions to them.
+Create a dedicated organization Project-A for this project.
+
+Create two groups dev-A and ops-A, which both belong to Project-A.
+
+Assign permissions to dev-A to allow all users in this group to run all resources.
+
+
+On the displayed page, select Teams and dev-A, and click Execute.
+
+Use the same method to authorize ops-A so that users in it can manage all resources (as
+project administrators) of the organization.
+
+
+Step 3 Create a user.
+Create two users, dev-user and ops-user, for developers and O&M personnel,
+respectively.
+
+
+After that, add the two users to the corresponding groups.
+
+After the users are created, choose Organizations > Access to assign administrator
+permissions for ops-user.
+
+
+ops-user will be used to create resources for subsequent tasks.
+Step 4 Add host and inventory permissions to users.
+The inventories and hosts added in section 7.3.1 will be used in subsequent exercises.
+Therefore, assign permissions to the newly created users.
+On the displayed page, choose Groups > ops-A > Admin.
+
+
+Use the same method to add the use, temporary, and read permissions for dev-A.
+
+
+
+The corresponding permissions are shown in the following figure.
+
+Step 5 Add credentials.
+This exercise requires two credentials, one for pulling a playbook (named GitLab-A) from
+GitLab and the other for executing the playbook (named Run-A) on the host. For details,
+see the preceding steps.
+Step 6 Create a project.
+Create Project-A in AWX. For details, see Step 2 in section 7.3.2.
+After the creation is complete, wait until the synchronization is complete on the Jobs
+page under View.
+
+Step 7 Add a job template.
+Add a job template according to the method described in section 7.3.2 and set Job Type
+to Check.
+
+
+
+
+
+Click Start to check whether the job can run properly.
+
+
+
+
+Step 8 Run the template before deploying services as a developer.
+Log in to the AWX as dev-user, find the corresponding job template, and execute it.
+
+
+
+⚫ Question: Can developers deploy the environment? Why?
+⚫ Answer: No. When creating a job template, ops-user sets the template type to
+Check. And dev-user does not have the permission to modify the template.
+Therefore, dev-user still checks the template upon startup. dev-user can deploy the
+environment only ops-user changes the template type to Run.
+
+
+
+
+
+
+
+
